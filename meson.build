@@ -16,6 +16,8 @@ add_project_arguments('-Wno-unused-parameter', language : 'c')
 
 libsystemd = dependency('libsystemd', version: '>=247', required: false)
 
+libbpf = dependency('libbpf', required: false)
+
 conf = configuration_data()
 conf.set10('HAVE_LINUX_MCTP_H',
     cc.has_header('linux/mctp.h'),
@@ -82,6 +84,15 @@ if libsystemd.found()
         ] + netlink_sources + util_sources,
         include_directories:  include_directories('src'),
         dependencies: [libsystemd, toml_dep],
+    )
+endif
+
+if libbpf.found()
+    executable('mctp-echo-bpf',
+        sources: [
+            'src/mctp-echo-bpf.c',
+        ] + util_sources,
+        dependencies: [libbpf],
     )
 endif
 
